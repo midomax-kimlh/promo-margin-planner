@@ -4,24 +4,64 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Promo Margin Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <header class="topbar">
-    <h1>Promo Margin Planner</h1>
-    <span id="status" class="status">đang tải…</span>
-  </header>
-
-  <main>
-    <p class="note">Baseline — đọc <code>tb_ctkm_margin_base</code>. Bảng nhập giá + tính %LN sống sẽ dựng ở bước sau.</p>
-    <div class="tablewrap">
-      <table id="grid">
-        <thead></thead>
-        <tbody></tbody>
-      </table>
+  <div class="topbar">
+    <h1>🏷️ Promo Margin Planner</h1><span class="badge" id="campaign">CTKM</span>
+    <span class="sp"></span>
+    <button class="btn btn-refresh" id="refresh">⟳ Refresh data</button>
+    <button class="btn btn-save" title="Lưu vào hệ thống — bản sau">💾 Lưu</button>
+  </div>
+  <div class="toolbar">
+    <div class="field"><label>Bộ môn</label><select id="f-sport"><option value="">Tất cả</option></select></div>
+    <div class="field"><label>Hiển thị</label><select id="f-stock"><option value="instock">Còn tồn</option><option value="sold">Có bán</option><option value="all">Tất cả</option></select></div>
+    <div class="field sm"><label>Tăng trưởng lẻ vs tháng gần nhất (%)</label><input id="f-r-retail" type="number" value="77"></div>
+    <div class="field sm"><label>Tăng trưởng buôn vs tháng gần nhất (%)</label><input id="f-r-whole" type="number" value="30"></div>
+    <div class="field sm"><label>CP Sàn+QC (%)</label><input id="f-cp" type="number" value="32"></div>
+    <div class="field search"><label>Tìm mã / tên</label><input id="f-search" placeholder="liberty, KMGC…"></div>
+    <button class="btn" style="background:var(--surface-2);color:var(--ink);border:1px solid var(--line)" id="expand">⊟ Thu gọn / Mở</button>
+    <div class="legend">
+      <span><span class="sw" style="background:var(--input-bg);border:1px solid var(--input-line)"></span>Nhập giá</span>
+      <span><span class="sw" style="background:var(--profit-bg)"></span>Lãi</span>
+      <span><span class="sw" style="background:var(--loss-bg)"></span>Lỗ</span>
     </div>
-  </main>
-
+  </div>
+  <div class="count" id="count">Đang tải…</div>
+  <div class="wrap">
+    <table id="grid">
+      <thead>
+        <tr class="grp">
+          <th class="frz">Sản phẩm  (Bộ môn ▸ Loại ▸ Nhóm ▸ Tên ▸ mã·màu)</th>
+          <th class="g-inv" colspan="3">Tồn kho</th>
+          <th class="g-sold" colspan="6">Đã bán / Ước tính</th>
+          <th class="g-ny" colspan="2">Giá sau giảm</th>
+          <th class="g-web" colspan="3">Web + Showroom ✎</th>
+          <th class="g-ecom" colspan="5">Ecom (Sàn) ✎</th>
+          <th class="g-dl1" colspan="3">Đại lý mức 1 ✎</th>
+          <th class="g-dl2" colspan="3">Đại lý mức 2 ✎</th>
+          <th class="g-note">Ghi chú ✎</th>
+        </tr>
+        <tr class="sub">
+          <th class="frz t">&nbsp;</th>
+          <th class="g-inv">Tồn</th><th class="g-inv">Khung</th><th class="g-inv">Số tháng</th>
+          <th class="g-sold" id="h-r2">Lẻ</th><th class="g-sold" id="h-r1">Lẻ</th><th class="g-sold" id="h-re">Lẻ T+1</th>
+          <th class="g-sold" id="h-w1">Buôn</th><th class="g-sold" id="h-w0">Buôn</th><th class="g-sold" id="h-we">Buôn T+1</th>
+          <th class="g-ny">Niêm yết</th><th class="g-ny">Vốn</th>
+          <th class="g-web">Giá sau giảm</th><th class="g-web">%CK</th><th class="g-web">%LN</th>
+          <th class="g-ecom">Giá sau giảm</th><th class="g-ecom">%CK</th><th class="g-ecom">%LN</th><th class="g-ecom">Phí sàn %</th><th class="g-ecom">%LN−CP</th>
+          <th class="g-dl1">Giá sau giảm</th><th class="g-dl1">%CK</th><th class="g-dl1">%LN</th>
+          <th class="g-dl2">Giá sau giảm</th><th class="g-dl2">%CK</th><th class="g-dl2">%LN</th>
+          <th class="g-note t">Note</th>
+        </tr>
+      </thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+  <div class="foot">Đọc <code>tb_ctkm_margin_base</code> · %CK = 1 − giá÷niêm yết · %LN = (giá − vốn)÷giá · %LN−CP (Ecom) = (giá − vốn − phí sàn)÷giá · giá CTKM nhập tay (Refresh sẽ xóa)</div>
   <script src="/app.js"></script>
 </body>
 </html>
