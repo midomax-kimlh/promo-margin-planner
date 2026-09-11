@@ -1,0 +1,24 @@
+# Local / plain-Docker-host run: builds the image and publishes it on a host port.
+# Variables come from a .env file next to this compose (copy .env.example).
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: promo_margin_planner
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment:
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME:-kazgevim_1C}
+      BASE_TABLE: ${BASE_TABLE:-tb_ctkm_margin_base}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

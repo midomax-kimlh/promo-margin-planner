@@ -1,0 +1,36 @@
+# Dokploy deployment (Compose service type). Traefik on the shared `dokploy-network`
+# terminates TLS and routes ${DOMAIN} to this container; no host port is published.
+# Set every ${VAR} in Dokploy > Environment (it is written to .env next to this file).
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME:-kazgevim_1C}
+      BASE_TABLE: ${BASE_TABLE:-tb_ctkm_margin_base}
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.promo-planner.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.promo-planner.entrypoints=websecure"
+      - "traefik.http.routers.promo-planner.tls.certResolver=letsencrypt"
+      - "traefik.http.routers.promo-planner.service=promo-planner"
+      - "traefik.http.services.promo-planner.loadbalancer.server.port=8000"
+      - "traefik.docker.network=dokploy-network"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  dokploy-network:
+    external: true
