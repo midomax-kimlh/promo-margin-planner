@@ -13,8 +13,10 @@
   <div class="topbar">
     <h1>🏷️ Promo Margin Planner</h1><span class="badge" id="campaign">CTKM</span>
     <span class="sp"></span>
+    <span class="auto"><span class="dot"></span><span id="autotxt">Nháp tự lưu</span></span>
     <button class="btn btn-refresh" id="refresh">⟳ Refresh data</button>
-    <button class="btn btn-save" title="Lưu vào hệ thống — bản sau">💾 Lưu</button>
+    <button class="btn btn-ver" id="btn-ver">📋 Phiên bản (<span id="vcount">0</span>)</button>
+    <button class="btn btn-savever" id="btn-save">💾 Lưu phiên bản</button>
   </div>
   <div class="toolbar">
     <div class="field"><label>Bộ môn</label><select id="f-sport"><option value="">Tất cả</option></select></div>
@@ -62,6 +64,24 @@
     </table>
   </div>
   <div class="foot">Đọc <code>tb_ctkm_margin_base</code> · %CK = 1 − giá÷niêm yết · %LN = (giá − vốn)÷giá · %LN−CP (Ecom) = (giá − vốn − phí sàn)÷giá · giá CTKM nhập tay (Refresh sẽ xóa)</div>
+  <!-- versions panel -->
+  <div class="panel" id="panel" hidden>
+    <h3>Phiên bản đã lưu — <span id="panel-camp"></span></h3>
+    <div class="pbody"><div class="vlist" id="vlist"></div></div>
+  </div>
+  <!-- save modal -->
+  <div class="modal" id="modal" hidden>
+    <div class="card">
+      <h3>Lưu phiên bản</h3>
+      <p>Đặt tên cho phiên bản này (theo ý bạn) — lưu lại để mở xem sau.</p>
+      <input id="vname" placeholder="vd: T9 bản chốt, T9 mạnh tay, trước duyệt sếp…" maxlength="60">
+      <div class="mrow">
+        <button class="btn btn-ghost" id="m-cancel">Huỷ</button>
+        <button class="btn btn-primary" id="m-ok">Lưu</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
   <script src="/app.js"></script>
 </body>
 </html>
