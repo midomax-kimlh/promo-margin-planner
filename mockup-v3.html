@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CTKM Margin Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --brand:#3F5F8F; --brand-d:#31496e;
+  --ground:#EEF1F6; --surface:#FFFFFF; --surface-2:#E9EEF6;
+  --ink:#1B2230; --ink-soft:#55607A; --ink-faint:#8A93A8; --line:#D7DEEA;
+  --profit:#1E874B; --profit-bg:#E7F3EC; --loss:#C0392B; --loss-bg:#FBEAE7;
+  --input-bg:#FFF7E8; --input-line:#E4C878; --input-ink:#5c4a1e;
+  --g-share:#EFF3F9;
+  --g-web:#DCE8FA; --g-ecom:#FBE1D0; --g-dl1:#F6E7C4; --g-dl2:#E1EDCB; --g-note:#E9EBF0;
+  --sep-web:#3F6FB0; --sep-ecom:#C56B3E; --sep-dl1:#C69A34; --sep-dl2:#7F9A45; --sep-note:#5A6273;
+  --b-fresh:#1E874B; --b-fresh-bg:#E3F3E9;
+  --b-mid:#B8860B;   --b-mid-bg:#FBF2DC;
+  --b-old:#C7761E;   --b-old-bg:#FBEEDD;
+  --b-dead:#C0392B;  --b-dead-bg:#FBEAE7;
+  --sans:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --brand:#5f7fb0; --brand-d:#4a689a; --ground:#0F141E; --surface:#161d2a; --surface-2:#1c2534;
+  --ink:#E8ECF4; --ink-soft:#A6B0C4; --ink-faint:#70798F; --line:#2A3547;
+  --profit:#4FC07F; --profit-bg:#15291F; --loss:#E87A6B; --loss-bg:#2C1A18;
+  --input-bg:#2a2415; --input-line:#5a4a22; --input-ink:#e8d9a8;
+  --g-share:#141a25;
+  --g-web:#16233a; --g-ecom:#2c2016; --g-dl1:#2a2415; --g-dl2:#1f2718; --g-note:#20242c;
+  --b-fresh:#4FC07F; --b-fresh-bg:#15291F;
+  --b-mid:#D9AE4A;   --b-mid-bg:#2A2414;
+  --b-old:#E0975A;   --b-old-bg:#2C2114;
+  --b-dead:#E87A6B;  --b-dead-bg:#2C1A18;
+}}
+:root[data-theme="dark"]{
+  --brand:#5f7fb0; --brand-d:#4a689a; --ground:#0F141E; --surface:#161d2a; --surface-2:#1c2534;
+  --ink:#E8ECF4; --ink-soft:#A6B0C4; --ink-faint:#70798F; --line:#2A3547;
+  --profit:#4FC07F; --profit-bg:#15291F; --loss:#E87A6B; --loss-bg:#2C1A18;
+  --input-bg:#2a2415; --input-line:#5a4a22; --input-ink:#e8d9a8;
+  --g-share:#141a25;
+  --g-web:#16233a; --g-ecom:#2c2016; --g-dl1:#2a2415; --g-dl2:#1f2718; --g-note:#20242c;
+  --b-fresh:#4FC07F; --b-fresh-bg:#15291F;
+  --b-mid:#D9AE4A;   --b-mid-bg:#2A2414;
+  --b-old:#E0975A;   --b-old-bg:#2C2114;
+  --b-dead:#E87A6B;  --b-dead-bg:#2C1A18;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:12.5px;line-height:1.4}
+.topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--brand);color:#fff;flex-wrap:wrap}
+.topbar h1{font-size:15px;font-weight:700;margin:0;letter-spacing:.01em}
+.topbar .sub{font-size:11.5px;color:#dbe6f6}
+.badge{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:3px 10px;font-size:11.5px;display:inline-flex;gap:6px;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:#7ee0a0;display:inline-block}
+.sp{flex:1}
+.btn{border:none;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600;font-family:var(--sans);cursor:pointer}
+.btn-w{background:#fff;color:var(--brand-d)} .btn-g{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.3)}
+.toolbar{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);font-weight:600}
+.field select,.field input{font-family:var(--sans);font-size:12px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
+.field.sm input{width:66px;font-family:var(--mono);text-align:right}
+.legend{margin-left:auto;display:flex;gap:12px;align-items:center;font-size:11px;color:var(--ink-soft);flex-wrap:wrap}
+.legend .lb{display:inline-flex;align-items:center;gap:5px}
+.legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+.note-bar{padding:7px 16px;background:var(--surface-2);border-bottom:1px solid var(--line);font-size:11.5px;color:var(--ink-soft)}
+.note-bar b{color:var(--ink)}
+.wrap{overflow:auto;max-height:calc(100vh - 168px)}
+table{border-collapse:separate;border-spacing:0;white-space:nowrap}
+th,td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+th.t,td.t{text-align:left}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td.t{font-family:var(--sans)}
+/* header tiers */
+thead .grp th{position:sticky;top:0;z-index:8;font-size:10px;letter-spacing:.06em;text-transform:uppercase;text-align:center;font-weight:700;color:#fff;padding:6px 8px}
+thead .sub th{position:sticky;top:29px;z-index:7;font-size:10px;font-weight:700;color:var(--ink);line-height:1.28;white-space:normal;min-width:58px;max-width:98px;vertical-align:bottom}
+thead .sub th .f{display:block;margin-top:3px;font-weight:500;font-style:normal;font-family:var(--mono);font-size:8.8px;letter-spacing:0;text-transform:none;color:var(--ink-soft);white-space:normal}
+thead .sub th .f.in{color:var(--input-ink);font-weight:600}
+.grp.share th{background:var(--brand-d)} .grp.web th{background:#3f6fb0} .grp.ecom th{background:#c56b3e}
+.grp.dl1 th{background:#c69a34} .grp.dl2 th{background:#7f9a45} .grp.note th{background:#5a6273}
+.g-share{background:var(--g-share)} .g-web{background:var(--g-web)} .g-ecom{background:var(--g-ecom)}
+.g-dl1{background:var(--g-dl1)} .g-dl2{background:var(--g-dl2)} .g-note{background:var(--g-note)}
+.sep-web{border-left:3px solid var(--sep-web)} .sep-ecom{border-left:3px solid var(--sep-ecom)}
+.sep-dl1{border-left:3px solid var(--sep-dl1)} .sep-dl2{border-left:3px solid var(--sep-dl2)} .sep-note{border-left:3px solid var(--sep-note)}
+/* frozen product col */
+.frz{position:sticky;left:0;z-index:5;background:var(--surface);min-width:262px;max-width:262px;box-shadow:6px 0 8px -6px rgba(20,30,50,.22)}
+th.frz{z-index:9;background:var(--brand-d);color:#fff}
+thead .sub th.frz{top:29px}
+.grp-row td{font-family:var(--sans);font-weight:600;background:var(--surface-2)}
+.grp-row .frz{background:var(--surface-2)}
+.caret{display:inline-block;width:13px;color:var(--ink-soft)}
+.lv0{padding-left:2px;color:var(--brand-d);font-size:12.5px}
+.leaf .frz{padding-left:14px}
+.prod{display:flex;align-items:center;gap:8px}
+.thumb{width:30px;height:30px;border-radius:5px;object-fit:cover;border:1px solid var(--line);flex:none;background:var(--surface-2);display:grid;place-items:center;font-size:14px}
+.pname{display:flex;flex-direction:column;line-height:1.25}
+.pname .nm{font-weight:600}
+.pname .code{color:var(--ink-faint);font-family:var(--mono);font-size:10.5px}
+.sizes{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft)}
+/* band pill */
+.band{font-size:10px;font-weight:700;text-align:center;border-radius:5px;padding:3px 4px;display:inline-block;min-width:64px}
+.b-fresh{color:var(--b-fresh);background:var(--b-fresh-bg)} .b-mid{color:var(--b-mid);background:var(--b-mid-bg)}
+.b-old{color:var(--b-old);background:var(--b-old-bg)} .b-dead{color:var(--b-dead);background:var(--b-dead-bg)}
+/* inputs */
+.inp{width:64px;font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;font-size:11.5px;
+  border:1px solid var(--input-line);background:var(--input-bg);color:var(--input-ink);border-radius:5px;padding:3px 5px}
+.inp.pct{width:46px}
+.sel{font-family:var(--sans);font-size:10.5px;border:1px solid var(--input-line);background:var(--input-bg);color:var(--input-ink);border-radius:5px;padding:3px 4px;max-width:96px}
+.note-inp{width:120px;text-align:left;font-family:var(--sans);font-size:11px}
+.gm{font-weight:700} .pos{color:var(--profit);background:var(--profit-bg)} .neg{color:var(--loss);background:var(--loss-bg)}
+.muted{color:var(--ink-faint)}
+.calc{color:var(--ink-soft)}
+.addrow{padding:8px 16px}
+.addrow .btn-add{background:var(--surface);border:1px dashed var(--brand);color:var(--brand-d);border-radius:8px;padding:7px 14px;font-weight:600;cursor:pointer}
+.foot{padding:10px 16px;font-size:11px;color:var(--ink-faint);font-family:var(--mono)}
+.rowdel{color:var(--loss);cursor:pointer;font-weight:700;padding:0 4px}
+kbd{font-family:var(--mono);background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:10.5px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <h1>CTKM Margin Planner</h1>
+  <span class="sub">Kế hoạch %lãi gộp theo khuyến mãi · CTKM T5.2026</span>
+  <span class="badge"><span class="dot"></span> Tự lưu nháp</span>
+  <span class="sp"></span>
+  <button class="btn btn-g">Phiên bản (3)</button>
+  <button class="btn btn-w">Lưu phiên bản</button>
+</header>
+
+<section class="toolbar">
+  <div class="field"><label>Bộ môn</label><select><option>Tất cả</option><option>Cầu lông</option><option>Pickleball</option><option>Bóng đá</option></select></div>
+  <div class="field"><label>Hiển thị</label><select><option>Còn tồn</option><option>Có bán</option><option>Tất cả</option></select></div>
+  <div class="field sm"><label>Tăng trưởng Web+SR %</label><input value="10"></div>
+  <div class="field sm"><label>Tăng trưởng Ecom %</label><input value="15"></div>
+  <div class="field sm"><label>Tăng trưởng ĐL1 %</label><input value="8"></div>
+  <div class="field sm"><label>Tăng trưởng ĐL2 %</label><input value="5"></div>
+  <div class="field sm"><label>CP Sàn+QC %</label><input value="32"></div>
+  <div class="field search"><label>Tìm mã / tên</label><input placeholder="KMGC..."></div>
+  <button class="btn" style="background:var(--surface-2);color:var(--ink);border:1px solid var(--line)">⊟ Thu gọn / Mở</button>
+  <div class="legend">
+    <span class="lb"><span class="sw" style="background:var(--b-fresh-bg);border:1px solid var(--b-fresh)"></span>dưới 6th</span>
+    <span class="lb"><span class="sw" style="background:var(--b-mid-bg);border:1px solid var(--b-mid)"></span>6th–1năm</span>
+    <span class="lb"><span class="sw" style="background:var(--b-old-bg);border:1px solid var(--b-old)"></span>1–2năm</span>
+    <span class="lb"><span class="sw" style="background:var(--b-dead-bg);border:1px solid var(--b-dead)"></span>trên 2năm</span>
+  </div>
+</section>
+
+<div class="note-bar">
+  <b>Mockup tĩnh — dữ liệu ví dụ.</b> Công thức ghi <i>ngay dưới mỗi cột tính</i>. Ký hiệu: <b>GR</b>=% tăng trưởng kênh · <b>Vốn</b>=Giá vốn×Ước tính SL · <b>Quà</b>=Quà Giá vốn · <b>DS</b>=Doanh số ước tính · cột <span style="color:var(--input-ink);background:var(--input-bg);border:1px solid var(--input-line);border-radius:4px;padding:0 4px">nền vàng</span>=nhập tay. Tháng mốc <b>m1=T8, m2=T7</b>. Cuộn ngang xem 4 kênh →
+</div>
+
+<div class="wrap">
+  <table id="grid">
+    <thead>
+      <tr class="grp" id="grpRow"></tr>
+      <tr class="sub" id="subRow"></tr>
+    </thead>
+    <tbody id="body"></tbody>
+  </table>
+</div>
+
+<div class="addrow"><button class="btn-add">+ Thêm dòng (chọn mã từ 6.488 sản phẩm)</button></div>
+<div class="foot">CTKM Margin Planner · mockup cấu hình cột v3 · 1.096 mã (seed sheet CTKM T5) · thêm/xóa dòng lưu theo phiên bản</div>
+
+<script>
+// ---- Column configuration (this is the "cấu hình" the mockup demonstrates) ----
+const CH = [
+  {key:'websr', name:'Web + Showroom', tint:'web',  ecom:false},
+  {key:'ecom',  name:'Ecom (sàn)',     tint:'ecom', ecom:true },
+  {key:'dl1',   name:'Đại lý cấp 1',   tint:'dl1',  ecom:false},
+  {key:'dl2',   name:'Đại lý cấp 2',   tint:'dl2',  ecom:false},
+];
+// per-channel sub-columns (label, kind). kind: data|input|calc
+const chCols = (ecom)=>[
+  ['Bán T‑1','data'],['DT T‑1','data'],['%CK T‑1','data'],
+  ['Ước tính SL','calc','= Bán T‑1 × (1+GR)'],
+  ['Giá sau giảm','input'],['CK','calc','= 1 − Giá ÷ Niêm yết'],
+  ...(ecom?[['Phí sàn %','input']]:[]),
+  ['Quà: SKU','input'],['Quà: SL','input'],['Quà: Giá vốn','calc','= Vốn quà × Quà SL'],
+  ['%LN','calc','= (DS − Vốn − Quà) ÷ DS'],
+  ...(ecom?[['%LN−CP','calc','= %LN − Phí sàn %']]:[]),
+  ['DS ước tính','calc','= Giá × Ước tính SL'],
+  ['Lợi nhuận ước tính','calc', ecom ? '= DS × %LN−CP' : '= DS × %LN'],
+];
+const shareCols = [['Size còn','t'],['Tồn','data'],['Tồn kho lâu năm','calc','theo Số tháng: <6 · 6–12 · 12–24 · >24'],['Số tháng','data'],['Giá niêm yết','data'],['Giá vốn','data']];
+
+// ---- Build header rows ----
+const grpRow = document.getElementById('grpRow');
+const subRow = document.getElementById('subRow');
+// frozen product group header
+grpRow.insertAdjacentHTML('beforeend', `<th class="frz t" rowspan="1">SẢN PHẨM</th>`);
+grpRow.insertAdjacentHTML('beforeend', `<th class="grp-share" colspan="${shareCols.length}" style="background:var(--brand-d);color:#fff">TỒN KHO · GIÁ VỐN</th>`);
+CH.forEach(c=>{
+  const n = chCols(c.ecom).length;
+  grpRow.insertAdjacentHTML('beforeend', `<th class="${c.tint} sep-${c.tint}" colspan="${n}">${c.name}</th>`);
+});
+grpRow.insertAdjacentHTML('beforeend', `<th class="note sep-note" colspan="3">GHI CHÚ</th>`);
+
+// sub header
+subRow.insertAdjacentHTML('beforeend', `<th class="frz t">Bộ môn ▸ Loại ▸ Nhóm ▸ Tên ▸ Mã·Màu</th>`);
+const cap = cc => cc[2] ? `<div class="f">${cc[2]}</div>` : (cc[1]==='input' ? `<div class="f in">✎ nhập</div>` : (cc[1]==='data' ? `<div class="f">DWH</div>` : ''));
+shareCols.forEach(sc=> subRow.insertAdjacentHTML('beforeend', `<th class="g-share">${sc[0]||''}${cap(sc)}</th>`));
+CH.forEach(c=> chCols(c.ecom).forEach((cc,i)=> subRow.insertAdjacentHTML('beforeend', `<th class="g-${c.tint} ${i===0?'sep-'+c.tint:''}">${cc[0]}${cap(cc)}</th>`)));
+subRow.insertAdjacentHTML('beforeend', `<th class="g-note t sep-note">Note bán buôn</th><th class="g-note t">Note bán lẻ</th><th class="g-note t">Note chung</th>`);
+
+// ---- Sample data (example rows) ----
+const money = n => n==null?'':n.toLocaleString('vi-VN');
+const pct = v => (v*100).toFixed(1)+'%';
+const bandCell = (label,cls)=>`<span class="band ${cls}">${label}</span>`;
+const gmCls = v => v>=0?'pos':'neg';
+
+// each row: product + inventory + base + per-channel {sold2,sold1,rev1,ck1,gr, price, gift qty}
+const ROWS = [
+  {grp:'Cầu lông ▸ Vợt ▸ Vợt cầu lông'},
+  {emoji:'🏸', nm:'Vợt cầu lông Kamito Archer', code:'KMVX250120 · Đen', sizes:'—', ton:412, band:['6th–1năm','b-mid'],
+   niem:1690000, von:980000,
+   websr:{s2:38,s1:44,rev:74800000,ck0:.29, price:1290000, gift:'—', gsl:0},
+   ecom:{s2:120,s1:150,rev:210000000,ck0:.34, price:1190000, phi:32, gift:'Túi vợt KMT', gsl:1},
+   dl1:{s2:60,s1:72,rev:96000000,ck0:.20, price:1352000, gift:'—', gsl:0},
+   dl2:{s2:5,s1:8,rev:10800000,ck0:.15, price:1436000, gift:'—', gsl:0}, note:'ĐL không thưởng NPP'},
+  {emoji:'👟', nm:'Giày cầu lông Kamito Legend', code:'KMGC250430 · Vàng đỏ', sizes:'38/39/40/41/42/43/44', ton:86, band:['1–2năm','b-old'],
+   niem:1290000, von:760000,
+   websr:{s2:22,s1:19,rev:9500000,ck0:.69, price:399000, gift:'Tất Kamito', gsl:1},
+   ecom:{s2:70,s1:64,rev:31900000,ck0:.61, price:499000, phi:32, gift:'—', gsl:0},
+   dl1:{s2:30,s1:28,rev:14500000,ck0:.60, price:516000, gift:'—', gsl:0},
+   dl2:{s2:2,s1:1,rev:520000,ck0:.55, price:580000, gift:'—', gsl:0}, note:''},
+  {emoji:'👕', nm:'Áo cầu lông Kamito Aurora', code:'KMTS250088 · Xanh', sizes:'S/M/L/XL/2XL', ton:640, band:['dưới 6th','b-fresh'],
+   niem:390000, von:172000,
+   websr:{s2:210,s1:245,rev:44100000,ck0:.28, price:280000, gift:'—', gsl:0},
+   ecom:{s2:520,s1:610,rev:128100000,ck0:.33, price:250000, phi:30, gift:'—', gsl:0},
+   dl1:{s2:180,s1:210,rev:42000000,ck0:.18, price:319000, gift:'—', gsl:0},
+   dl2:{s2:12,s1:9,rev:1700000,ck0:.10, price:351000, gift:'—', gsl:0}, note:'Sỉ ≥ 50c'},
+  {emoji:'🎾', nm:'Vợt Pickleball Tiamo Heart Beat', code:'KMCBVA250111 · Hồng', sizes:'—', ton:54, band:['trên 2năm','b-dead'],
+   niem:2190000, von:1280000,
+   websr:{s2:6,s1:5,rev:6450000,ck0:.41, price:1290000, gift:'Bao vợt', gsl:1},
+   ecom:{s2:14,s1:11,rev:13750000,ck0:.43, price:1250000, phi:32, gift:'—', gsl:0},
+   dl1:{s2:8,s1:6,rev:9600000,ck0:.27, price:1600000, gift:'—', gsl:0},
+   dl2:{s2:1,s1:0,rev:0,ck0:.20, price:1750000, gift:'—', gsl:0}, note:'BST Heart Beat'},
+];
+
+const GROWTH = {websr:.10, ecom:.15, dl1:.08, dl2:.05};
+const body = document.getElementById('body');
+
+function chCells(r, c){
+  const d = r[c.key]; const g = GROWTH[c.key];
+  const est = Math.round(d.s1*(1+g));            // Ước tính SL = Bán T-1 × (1+GR)
+  const ck = 1 - d.price/r.niem;                 // CK = 1 − Giá ÷ Niêm yết
+  const giftUnit = d.gsl>0 ? Math.round(r.von*0.35) : 0; // demo: vốn 1 SKU quà
+  const giftTot = giftUnit*d.gsl;                // Quà: Giá vốn = Vốn quà × Quà SL
+  const ds = est*d.price;                        // DS ước tính = Giá × Ước tính SL
+  const grossAmt = ds - est*r.von - giftTot;     // lãi gộp trước phí sàn
+  const ln = ds>0 ? grossAmt/ds : 0;             // %LN = (DS − Vốn − Quà) ÷ DS
+  const fee = c.ecom ? ds*(d.phi/100) : 0;       // phí sàn (chỉ Ecom)
+  const lnCp = ds>0 ? (grossAmt - fee)/ds : 0;   // %LN−CP = %LN − phí sàn%
+  const profitAmt = c.ecom ? grossAmt - fee : grossAmt; // Ecom: DS×%LN−CP · khác: DS×%LN
+  const t = c.tint;
+  let x = ``;
+  x += `<td class="g-${t} sep-${t}">${d.s1}</td>`;                                    // Bán T-1 (đầu kênh)
+  x += `<td class="g-${t} calc">${money(d.rev)}</td>`;                                // DT T-1
+  x += `<td class="g-${t} calc">${pct(d.ck0)}</td>`;                                  // %CK T-1
+  x += `<td class="g-${t}"><b>${est}</b></td>`;                                       // Ước tính SL
+  x += `<td class="g-${t}"><input class="inp" value="${money(d.price)}"></td>`;       // Giá sau giảm ✎
+  x += `<td class="g-${t} calc">${pct(ck)}</td>`;                                     // CK
+  if(c.ecom) x += `<td class="g-${t}"><input class="inp pct" value="${d.phi}"></td>`; // Phí sàn % ✎
+  x += `<td class="g-${t}"><select class="sel"><option>${d.gift}</option><option>— chọn SKU —</option></select></td>`; // Quà SKU ✎
+  x += `<td class="g-${t}"><input class="inp pct" value="${d.gsl}"></td>`;            // Quà SL ✎
+  x += `<td class="g-${t} calc">${money(giftTot)}</td>`;                              // Quà Giá vốn
+  x += `<td class="g-${t} gm ${gmCls(ln)}">${pct(ln)}</td>`;                          // %LN
+  if(c.ecom){ x += `<td class="g-${t} gm ${gmCls(lnCp)}">${pct(lnCp)}</td>`; }        // %LN−CP
+  x += `<td class="g-${t} calc">${money(ds)}</td>`;                                   // DS ước tính
+  x += `<td class="g-${t} gm ${gmCls(profitAmt)}">${money(profitAmt)}</td>`;          // Lợi nhuận ước tính
+  return x;
+}
+
+ROWS.forEach(r=>{
+  if(r.grp){
+    const span = 1 + shareCols.length + CH.reduce((a,c)=>a+chCols(c.ecom).length,0) + 3;
+    body.insertAdjacentHTML('beforeend',
+      `<tr class="grp-row"><td class="frz t lv0"><span class="caret">▾</span> ${r.grp}</td><td colspan="${span-1}"></td></tr>`);
+    return;
+  }
+  let tr = `<tr class="leaf">`;
+  tr += `<td class="frz t"><div class="prod"><span class="thumb">${r.emoji}</span>`+
+        `<span class="pname"><span class="nm">${r.nm}</span><span class="code">${r.code}</span></span>`+
+        `<span class="rowdel" title="Xóa dòng">✕</span></div></td>`;
+  // share cols: (blank already merged into product), Size, Tồn, band, niêm, vốn
+  const mo = ({'dưới 6th':3,'6th–1năm':9,'1–2năm':18,'trên 2năm':28})[r.band[0]];
+  tr += `<td class="g-share t sizes">${r.sizes}</td>`;
+  tr += `<td class="g-share">${r.ton}</td>`;
+  tr += `<td class="g-share">${bandCell(r.band[0], r.band[1])}</td>`;
+  tr += `<td class="g-share muted">${mo}</td>`;
+  tr += `<td class="g-share">${money(r.niem)}</td>`;
+  tr += `<td class="g-share">${money(r.von)}</td>`;
+  CH.forEach(c=> tr += chCells(r,c));
+  tr += `<td class="g-note t sep-note"><input class="note-inp" value="${r.note||''}" placeholder="note buôn…"></td>`;
+  tr += `<td class="g-note t"><input class="note-inp" value="${r.noteR||''}" placeholder="note lẻ…"></td>`;
+  tr += `<td class="g-note t"><input class="note-inp" value="${r.noteG||''}" placeholder="note chung…"></td>`;
+  tr += `</tr>`;
+  body.insertAdjacentHTML('beforeend', tr);
+});
+
+// note: shareCols first entry is the product tree (already in frozen col). Remove the empty duplicate header cell.
+</script>
+</body>
+</html>

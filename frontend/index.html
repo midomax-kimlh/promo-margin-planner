@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Promo Margin Planner</title>
+  <title>CTKM Margin Planner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/style.css?v=12">
 </head>
 <body>
   <div class="topbar">
-    <h1>🏷️ Promo Margin Planner</h1><span class="badge" id="campaign">CTKM</span>
+    <h1>🏷️ CTKM Margin Planner</h1><span class="badge" id="campaign">CTKM</span>
     <span class="sp"></span>
     <span class="auto"><span class="dot"></span><span id="autotxt">Nháp tự lưu</span></span>
     <button class="btn btn-refresh" id="refresh">⟳ Refresh data</button>
@@ -20,50 +20,44 @@
   </div>
   <div class="toolbar">
     <div class="field"><label>Bộ môn</label><select id="f-sport"><option value="">Tất cả</option></select></div>
-    <div class="field"><label>Hiển thị</label><select id="f-stock"><option value="instock">Còn tồn</option><option value="sold">Có bán</option><option value="all">Tất cả</option></select></div>
-    <div class="field sm"><label>Tăng trưởng lẻ vs tháng gần nhất (%)</label><input id="f-r-retail" type="number" value="77"></div>
-    <div class="field sm"><label>Tăng trưởng buôn vs tháng gần nhất (%)</label><input id="f-r-whole" type="number" value="30"></div>
-    <div class="field sm"><label>CP Sàn+QC (%)</label><input id="f-cp" type="number" value="32"></div>
+    <div class="field"><label>Hiển thị</label><select id="f-stock"><option value="all" selected>Tất cả</option><option value="instock">Còn tồn</option><option value="sold">Có bán</option></select></div>
+    <div class="field sm"><label>Tăng trưởng Web+SR %</label><input id="f-gr-websr" type="number" value="10"></div>
+    <div class="field sm"><label>Tăng trưởng Ecom %</label><input id="f-gr-ecom" type="number" value="15"></div>
+    <div class="field sm"><label>Tăng trưởng ĐL1 %</label><input id="f-gr-dl1" type="number" value="8"></div>
+    <div class="field sm"><label>Tăng trưởng ĐL2 %</label><input id="f-gr-dl2" type="number" value="5"></div>
+    <div class="field sm"><label>CP Sàn+QC %</label><input id="f-cp" type="number" value="32"></div>
     <div class="field search"><label>Tìm mã / tên</label><input id="f-search" placeholder="liberty, KMGC…"></div>
-    <button class="btn" style="background:var(--surface-2);color:var(--ink);border:1px solid var(--line)" id="expand">⊟ Thu gọn / Mở</button>
+    <button class="btn tb-btn" id="expand">⊟ Thu gọn / Mở</button>
+    <button class="btn tb-btn" id="btn-addrow">＋ Thêm dòng</button>
     <div class="legend">
-      <span><span class="sw" style="background:var(--input-bg);border:1px solid var(--input-line)"></span>Nhập giá</span>
-      <span><span class="sw" style="background:var(--profit-bg)"></span>Lãi</span>
-      <span><span class="sw" style="background:var(--loss-bg)"></span>Lỗ</span>
+      <span class="lb"><span class="sw" style="background:var(--b-fresh-bg);border:1px solid var(--b-fresh)"></span>dưới 6th</span>
+      <span class="lb"><span class="sw" style="background:var(--b-mid-bg);border:1px solid var(--b-mid)"></span>6th–1năm</span>
+      <span class="lb"><span class="sw" style="background:var(--b-old-bg);border:1px solid var(--b-old)"></span>1–2năm</span>
+      <span class="lb"><span class="sw" style="background:var(--b-dead-bg);border:1px solid var(--b-dead)"></span>trên 2năm</span>
     </div>
   </div>
   <div class="count" id="count">Đang tải…</div>
   <div class="wrap">
     <table id="grid">
       <thead>
-        <tr class="grp">
-          <th class="frz">Sản phẩm  (Bộ môn ▸ Loại ▸ Nhóm ▸ Tên ▸ mã·màu)</th>
-          <th class="g-inv" colspan="3">Tồn kho</th>
-          <th class="g-sold" colspan="6">Đã bán / Ước tính</th>
-          <th class="g-ny" colspan="2">Giá sau giảm</th>
-          <th class="g-web" colspan="3">Web + Showroom ✎</th>
-          <th class="g-ecom" colspan="5">Ecom (Sàn) ✎</th>
-          <th class="g-dl1" colspan="3">Đại lý mức 1 ✎</th>
-          <th class="g-dl2" colspan="3">Đại lý mức 2 ✎</th>
-          <th class="g-note">Ghi chú ✎</th>
-        </tr>
-        <tr class="sub">
-          <th class="frz t">&nbsp;</th>
-          <th class="g-inv">Tồn</th><th class="g-inv">Khung</th><th class="g-inv">Số tháng</th>
-          <th class="g-sold" id="h-r2">Lẻ</th><th class="g-sold" id="h-r1">Lẻ</th><th class="g-sold" id="h-re">Lẻ T+1</th>
-          <th class="g-sold" id="h-w1">Buôn</th><th class="g-sold" id="h-w0">Buôn</th><th class="g-sold" id="h-we">Buôn T+1</th>
-          <th class="g-ny">Niêm yết</th><th class="g-ny">Vốn</th>
-          <th class="g-web">Giá sau giảm</th><th class="g-web">%CK</th><th class="g-web">%LN</th>
-          <th class="g-ecom">Giá sau giảm</th><th class="g-ecom">%CK</th><th class="g-ecom">%LN</th><th class="g-ecom">Phí sàn %</th><th class="g-ecom">%LN−CP</th>
-          <th class="g-dl1">Giá sau giảm</th><th class="g-dl1">%CK</th><th class="g-dl1">%LN</th>
-          <th class="g-dl2">Giá sau giảm</th><th class="g-dl2">%CK</th><th class="g-dl2">%LN</th>
-          <th class="g-note t">Note</th>
-        </tr>
+        <tr class="grp" id="grpRow"></tr>
+        <tr class="sub" id="subRow"></tr>
       </thead>
       <tbody id="body"></tbody>
     </table>
   </div>
-  <div class="foot">Đọc <code>tb_ctkm_margin_base</code> · %CK = 1 − giá÷niêm yết · %LN = (giá − vốn)÷giá · %LN−CP (Ecom) = (giá − vốn − phí sàn)÷giá · giá CTKM nhập tay (Refresh sẽ xóa)</div>
+  <div class="foot" id="foot">CTKM Margin Planner · %CK=1−giá÷niêm · %LN=(DS−vốn−quà)÷DS · Ecom %LN−CP=%LN−phí sàn · LN ước tính=DS×%LN (Ecom=DS×%LN−CP)</div>
+
+  <!-- add-row modal -->
+  <div class="modal" id="addmodal" hidden>
+    <div class="card">
+      <h3>Thêm dòng vào kế hoạch</h3>
+      <p>Tìm mã hàng theo mã hoặc tên, chọn để thêm vào bảng.</p>
+      <input id="addsearch" placeholder="Gõ mã hoặc tên sản phẩm…" autocomplete="off">
+      <div class="addlist" id="addlist"></div>
+      <div class="mrow"><button class="btn btn-ghost" id="add-cancel">Đóng</button></div>
+    </div>
+  </div>
   <!-- versions panel -->
   <div class="panel" id="panel" hidden>
     <h3>Phiên bản đã lưu — <span id="panel-camp"></span></h3>
@@ -82,6 +76,6 @@
     </div>
   </div>
   <div class="toast" id="toast"></div>
-  <script src="/app.js"></script>
+  <script src="/app.js?v=12"></script>
 </body>
 </html>
