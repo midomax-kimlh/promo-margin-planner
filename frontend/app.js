@@ -242,7 +242,7 @@ $("addlist").addEventListener("click", (e) => {
 });
 
 // ---- shared plan via API + realtime WebSocket ----
-let VERS = [], WS = null, sendTimers = {}, wsReady = false;
+let VERS = [], WS = null, sendTimers = {}, wsReady = false, openingVersion = false;
 const enc = encodeURIComponent;
 const nowStr = () => new Date().toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" });
 const promoOf = (d) => { const o = {}; CH.forEach((c) => { const p = d.promo[c.key]; o[c.key] = { price: p.price, phi: p.phi, giftCode: p.giftCode, giftSl: p.giftSl }; }); return o; };
@@ -277,7 +277,11 @@ function connectWS() {
   WS.onmessage = (e) => { let m; try { m = JSON.parse(e.data); } catch (x) { return; }
     if (m.type === "changed") refreshItem(m.code);                                      // tín hiệu → ĐỌC mã đó từ DB
     else if (m.type === "versions") loadVersions();
-    else if (m.type === "reload") loadPlanState().then(render); };
+    else if (m.type === "reload") loadPlanState().then(() => {
+      render();
+      if (openingVersion) { toast("Đã mở phiên bản thành công ✓"); openingVersion = false; }
+      else toast("Kế hoạch vừa được mở từ 1 phiên bản");
+    }); };
   WS.onclose = () => setTimeout(connectWS, 2000);                                       // tự kết nối lại
 }
 async function loadPlanState() {
@@ -307,7 +311,7 @@ function toast(t) { const el = $("toast"); el.textContent = t; el.classList.add(
 $("btn-ver").addEventListener("click", () => { const p = $("panel"); p.hidden = !p.hidden; if (!p.hidden) renderVersions(); });
 $("vlist").addEventListener("click", async (e) => {
   const o = e.target.dataset.open, dl = e.target.dataset.del;
-  if (o) { await fetch(`/api/versions/${o}/restore`, { method: "POST" }); toast("Đang mở phiên bản…"); }   // server broadcast 'reload'
+  if (o) { openingVersion = true; toast("Đang mở phiên bản…"); await fetch(`/api/versions/${o}/restore`, { method: "POST" }); }   // server broadcast 'reload'
   if (dl) { if (confirm("Xoá phiên bản này?")) { await fetch(`/api/versions/${dl}`, { method: "DELETE" }); toast("Đã xoá phiên bản"); } }
 });
 $("btn-save").addEventListener("click", () => { $("modal").hidden = false; $("vname").value = ""; setTimeout(() => $("vname").focus(), 50); });

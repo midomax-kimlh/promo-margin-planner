@@ -184,10 +184,10 @@ async def restore_version(vid: str):
         campaign = row["campaign"]
         items = json.loads(row["data_json"])
         cur.execute("DELETE FROM ctkm_plan_item WHERE campaign=%s", (campaign,))
-        for it in items:
-            cur.execute("""INSERT INTO ctkm_plan_item (campaign, code, in_plan, promo_json, notes_json)
-                           VALUES (%s,%s,%s,%s,%s)""",
-                        (campaign, it["code"], it.get("in_plan", 1), it.get("promo_json"), it.get("notes_json")))
+        vals = [(campaign, it["code"], it.get("in_plan", 1), it.get("promo_json"), it.get("notes_json")) for it in items]
+        if vals:
+            cur.executemany("""INSERT INTO ctkm_plan_item (campaign, code, in_plan, promo_json, notes_json)
+                               VALUES (%s,%s,%s,%s,%s)""", vals)   # batch 1 lệnh thay vì 1096 lượt
         cn.commit()
     await manager.broadcast(campaign, {"type": "reload"})
     return {"ok": True}
